@@ -5,8 +5,10 @@ namespace Data.Repositories;
 
 public interface IPersonRepository
 {
-    Task<Person?> GetById(Guid personId);
-    Task<List<Person>> GetAll(GetAllPeopleQueryFilters filters);
-    Task<Person> Add(Person person);
-    Task<Person> RecordBirth(Person person);
+    Task<PersonVersion?> GetById(Guid personId);
+    Task<Person?> GetHistoryById(Guid personId);
+    Task<List<PersonVersion?>> GetAll(GetAllPeopleQueryFilters filters);
+    Task<PersonVersion> Add(PersonVersion person);
+    Task<PersonVersion> Update(PersonVersion personVersion);
+    Task<PersonVersion> RecordBirth(PersonVersion person);
 }

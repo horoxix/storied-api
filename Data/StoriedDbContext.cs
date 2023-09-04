@@ -11,6 +11,7 @@ public class StoriedDbContext : DbContext
     public DbSet<EventType> EventTypes { get; set; }
     public DbSet<Gender> Genders { get; set; }
     public DbSet<Location> Locations { get; set; }
+    public DbSet<PersonVersion> PersonVersions { get; set; }
 
     public StoriedDbContext() { }
     public StoriedDbContext(DbContextOptions<StoriedDbContext> options) : base(options) { }

@@ -1,22 +1,31 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-using Domain.Commands;
+namespace Domain.Validation;
 
-namespace Domain.Validation
+public class AtLeastOnePropertyRequiredAttribute : ValidationAttribute
 {
-    public class GivenOrSurnameRequiredAttribute : ValidationAttribute
+    private readonly string[] _propertyNames;
+
+    public AtLeastOnePropertyRequiredAttribute(params string[] propertyNames)
     {
-        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+        _propertyNames = propertyNames;
+    }
+
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
+    {
+        var command = validationContext.ObjectInstance;
+
+        foreach (var propertyName in _propertyNames)
         {
-            var command = (AddPersonCommand)validationContext.ObjectInstance;
+            var propertyInfo = command.GetType().GetProperty(propertyName);
+            var propertyValue = propertyInfo?.GetValue(command);
 
-            if (string.IsNullOrWhiteSpace(command.GivenName) &&
-                string.IsNullOrWhiteSpace(command.Surname))
+            if (propertyValue != null && !string.IsNullOrWhiteSpace(propertyValue.ToString()))
             {
-                return new ValidationResult("At least one of Given Name or Surname is required.");
+                return ValidationResult.Success;
             }
-
-            return ValidationResult.Success;
         }
+
+        return new ValidationResult($"At least one of {_propertyNames} is required.");
     }
 }

@@ -20,9 +20,9 @@ public class PersonRepository : IPersonRepository
     /// <returns>
     /// A list of all persons in the database.
     /// </returns>
-    public async Task<List<Person>> GetAll(GetAllPeopleQueryFilters filters)
+    public async Task<List<PersonVersion?>> GetAll(GetAllPeopleQueryFilters filters)
     {
-        var originalQuery = DefaultQuery<Person>();
+        var originalQuery = DefaultQuery<PersonVersion>();
 
         if (filters.BirthLocationId.HasValue)
             originalQuery = originalQuery.Where(x => x.BirthEvent.Location.Id == filters.BirthLocationId);
@@ -40,7 +40,12 @@ public class PersonRepository : IPersonRepository
         return await originalQuery
             .Include(x => x.Gender)
             .Include(x => x.BirthEvent)
+            .ThenInclude(x => x.Location)
             .Include(x => x.DeathEvent)
+            .ThenInclude(x => x.Location)
+            .GroupBy(x => x.PersonId)
+            .Select(group => group.OrderByDescending(x => x.VersionDate)
+            .FirstOrDefault())
             .ToListAsync();
     }
 
@@ -51,12 +56,36 @@ public class PersonRepository : IPersonRepository
     /// <returns>
     /// The person with the specified ID, or null if not found.
     /// </returns>
-    public async Task<Person?> GetById(Guid personId)
+    public async Task<PersonVersion?> GetById(Guid personId)
     {
-        return await _context.People
+        return await _context.PersonVersions
+            .OrderBy(x => x.VersionDate)
             .Include(x => x.Gender)
             .Include(x => x.BirthEvent)
+            .ThenInclude(x => x.Location)
             .Include(x => x.DeathEvent)
+            .ThenInclude(x => x.Location)
+            .FirstOrDefaultAsync(x => x.PersonId == personId);
+    }
+
+    /// <summary>
+    /// Retrieves a person by their unique identifier (ID) asynchronously.
+    /// </summary>
+    /// <param name="personId">The ID of the person to retrieve.</param>
+    /// <returns>
+    /// The person with the specified ID, or null if not found.
+    /// </returns>
+    public async Task<Person?> GetHistoryById(Guid personId)
+    {
+        return await _context.People
+            .Include(x => x.Versions)
+            .ThenInclude(x => x.Gender)
+            .Include(x => x.Versions)
+            .ThenInclude(x => x.BirthEvent)
+            .ThenInclude(x => x.Location)
+            .Include(x => x.Versions)
+            .ThenInclude(x => x.DeathEvent)
+            .ThenInclude(x => x.Location)
             .FirstOrDefaultAsync(x => x.Id == personId);
     }
 
@@ -67,80 +96,77 @@ public class PersonRepository : IPersonRepository
     /// <returns>
     /// The added person with any modifications applied by the database (e.g., generated ID).
     /// </returns>
-    public async Task<Person> Add(Person person)
+    public async Task<PersonVersion> Add(PersonVersion person)
     {
+        person.VersionDate = DateTime.Now;
+        await SetGender(person);
         if (person.BirthEvent != null)
-        {
-            await CreateEvent(person.BirthEvent);
-        }
+            await SetLocation(person.BirthEvent);
         if (person.DeathEvent != null)
-        {
-            await CreateEvent(person.DeathEvent);
-        }
+            await SetLocation(person.DeathEvent);
 
-        _context.People.Add(person);
+        var newPerson = new Person() { Versions = new List<PersonVersion>() { person } };
+
+        _context.People.Add(newPerson);
         await _context.SaveChangesAsync();
         return person;
+    }
+
+    public async Task<PersonVersion> Update(PersonVersion personVersion)
+    {
+        var existingPerson = await _context.People.FirstOrDefaultAsync(x => x.Id == personVersion.PersonId);
+
+        if (existingPerson != null)
+        {
+            personVersion.VersionDate = DateTime.Now;
+            await SetGender(personVersion);
+            if (personVersion.BirthEvent != null)
+                await SetLocation(personVersion.BirthEvent);
+            if (personVersion.DeathEvent != null)
+                await SetLocation(personVersion.DeathEvent);
+
+            _context.PersonVersions.Add(personVersion);
+            await _context.SaveChangesAsync();
+            return personVersion;
+        }
+        else throw new ArgumentException($"Person not found for Id {personVersion.PersonId}");
     }
 
     /// <summary>
     /// Records a birth event for a person in the database asynchronously.
     /// </summary>
-    /// <param name="person">The person for whom to record a birth event.</param>
+    /// <param name="personVersion">The person for whom to record a birth event.</param>
     /// <returns>
     /// The updated person entity after recording the birth event.
     /// </returns>
-    public async Task<Person> RecordBirth(Person person)
+    public async Task<PersonVersion> RecordBirth(PersonVersion personVersion)
     {
-        var existingPerson = await _context.People.FirstOrDefaultAsync(x => x.Id == person.Id);
+        var existingPerson = await _context.People.FirstOrDefaultAsync(x => x.Id == personVersion.Id);
 
         if (existingPerson != null)
         {
-            if (existingPerson.BirthEvent == null &&
-                person.BirthEvent != null)
-            {
-                await SetLocation(person.BirthEvent);
+            var latestPersonVersion = _context.PersonVersions
+                .OrderBy(x => x.VersionDate)
+                .FirstOrDefault(x => x.PersonId == personVersion.Id);
 
-                existingPerson.BirthEvent = person.BirthEvent;
-            }
-            else
-            {
-                if (EventDateNeedsUpdating(existingPerson, person))
-                {
-                    existingPerson.BirthEvent.EventDate = person.BirthEvent?.EventDate;
-                }
-                if (EventLocationNeedsUpdating(existingPerson, person))
-                {
-                    existingPerson.BirthEvent.Location.Id = person.BirthEvent.Location.Id;
-                }
-            }
+            await SetLocation(personVersion.BirthEvent);
 
+            var newVersion = new PersonVersion()
+            {
+                GivenName = latestPersonVersion.GivenName,
+                Surname = latestPersonVersion.Surname,
+                VersionDate = DateTime.Now,
+                PersonId = existingPerson.Id,
+                GenderId = latestPersonVersion.GenderId,
+                BirthEvent = personVersion.BirthEvent,
+                DeathEvent = latestPersonVersion.DeathEvent
+            };
+
+            _context.PersonVersions.Add(personVersion);
             await _context.SaveChangesAsync();
-            return person;
+            return personVersion;
         }
-        else throw new ArgumentException($"Person not found for Id {person.Id}");
-    }
-
-    /// <summary>
-    /// Checks if the birth event date needs updating.
-    /// </summary>
-    private bool EventDateNeedsUpdating(Person existingPerson, Person person)
-    {
-        return existingPerson.BirthEvent != null &&
-            person.BirthEvent != null &&
-            existingPerson.BirthEvent.EventDate != person.BirthEvent.EventDate &&
-            person.BirthEvent.EventDate.HasValue;
-    }
-
-    /// <summary>
-    /// Checks if the birth event location needs updating.
-    /// </summary>
-    private bool EventLocationNeedsUpdating(Person existingPerson, Person person)
-    {
-        return existingPerson.BirthEvent != null &&
-            person.BirthEvent != null &&
-            person.BirthEvent.Location.Id != null &&
-            existingPerson.BirthEvent.Location.Id != person.BirthEvent.Location.Id;
+        else throw new ArgumentException($"Person not found for Id {personVersion.PersonId}");
     }
 
     /// <summary>
@@ -153,20 +179,6 @@ public class PersonRepository : IPersonRepository
     }
 
     /// <summary>
-    /// Creates a new event in the database asynchronously.
-    /// </summary>
-    private async Task CreateEvent(Event @event)
-    {
-        var existingEvent = await _context.Events.FirstOrDefaultAsync(x => x.Id == @event.Id);
-        if (existingEvent == null)
-        {
-            await SetLocation(@event);
-
-            _context.Events.Add(@event);
-        }
-    }
-
-    /// <summary>
     /// Sets the location for an event asynchronously.
     /// </summary>
     private async Task SetLocation(Event @event)
@@ -175,6 +187,18 @@ public class PersonRepository : IPersonRepository
         if (location != null)
         {
             @event.Location = location;
+        }
+    }
+
+    /// <summary>
+    /// Sets the gender for an person asynchronously.
+    /// </summary>
+    private async Task SetGender(PersonVersion version)
+    {
+        var gender = await _context.Genders.FirstOrDefaultAsync(x => x.Id == version.GenderId);
+        if (gender != null)
+        {
+            version.Gender = gender;
         }
     }
 }

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(StoriedDbContext))]
-    [Migration("20230903213558_domain-entities")]
-    partial class domainentities
+    [Migration("20230904030339_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -58,17 +58,17 @@ namespace Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("cf7c459c-77b3-43eb-8f08-4e57a37bfa27"),
+                            Id = new Guid("9dcf30df-ad5b-4a61-8442-fef9b90f2ffa"),
                             Name = "Birth"
                         },
                         new
                         {
-                            Id = new Guid("e3706eeb-aff7-484b-90fb-3b1621dd9d22"),
+                            Id = new Guid("4549711d-1cf7-4bb0-ae78-aca5bf2852c6"),
                             Name = "Death"
                         },
                         new
                         {
-                            Id = new Guid("25f66e46-e87f-4a85-a4c1-4ee512907de3"),
+                            Id = new Guid("a8186a06-38a7-4de5-aa2f-80688ccf61fd"),
                             Name = "Marriage"
                         });
                 });
@@ -90,27 +90,27 @@ namespace Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("0781acf3-9ff7-4508-86ca-07553240130e"),
+                            Id = new Guid("40e513a1-1fbb-41c8-9c9b-8d6bb6d9531a"),
                             Name = "Male"
                         },
                         new
                         {
-                            Id = new Guid("3e299323-6d9a-4576-88ab-e5efe37073be"),
+                            Id = new Guid("b6b9bb29-7a78-42a4-8d3a-2e3e36f29ceb"),
                             Name = "Female"
                         },
                         new
                         {
-                            Id = new Guid("5608bf07-a2cf-4588-a76e-c9d0057b848e"),
+                            Id = new Guid("872534e8-80c0-421f-b84f-834a0c29bb42"),
                             Name = "Non-binary"
                         },
                         new
                         {
-                            Id = new Guid("525b3984-4ed3-4fef-af6b-cf8198b1bc0f"),
+                            Id = new Guid("0ab267f7-28dc-47ad-8c16-62f4fd46a210"),
                             Name = "Transgender"
                         },
                         new
                         {
-                            Id = new Guid("25a9ad5c-623e-4e8a-9ea3-3dffd9c15c21"),
+                            Id = new Guid("ecde8447-59fa-478f-b870-13a329ecf032"),
                             Name = "Other"
                         });
                 });
@@ -132,32 +132,32 @@ namespace Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5bf7744e-c13a-446e-9b0d-398a23bdf5ee"),
+                            Id = new Guid("500c6a87-40c7-4041-85ae-c2334b801391"),
                             Name = "Orem"
                         },
                         new
                         {
-                            Id = new Guid("2df653ac-f256-46d3-89f9-a5917a916efd"),
+                            Id = new Guid("7f073329-04b4-4c27-b925-b2c81ef244ef"),
                             Name = "Provo"
                         },
                         new
                         {
-                            Id = new Guid("9b158b76-ba87-40b3-8360-b210d0436dfb"),
+                            Id = new Guid("d56b6370-7058-4f19-bcd4-729471953f89"),
                             Name = "New York"
                         },
                         new
                         {
-                            Id = new Guid("0c088ee9-1a62-47a8-a309-5679540e2d86"),
+                            Id = new Guid("0613ca2c-692a-41a4-bcc9-95cc271ed295"),
                             Name = "San Francisco"
                         },
                         new
                         {
-                            Id = new Guid("cc28c6f5-7f02-4213-b71e-d4e7d741c0b2"),
+                            Id = new Guid("bc9f8025-6cbc-48e4-a75e-cec46efd1a33"),
                             Name = "London"
                         },
                         new
                         {
-                            Id = new Guid("28fcc8c5-b1e8-4316-a3a1-4da04eebffd3"),
+                            Id = new Guid("89f082c5-2092-4e3c-839e-04d5024a6db4"),
                             Name = "Tokyo"
                         });
                 });
@@ -168,10 +168,21 @@ namespace Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("BirthEventId")
+                    b.HasKey("Id");
+
+                    b.ToTable("People");
+                });
+
+            modelBuilder.Entity("Data.Entities.PersonVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("DeathEventId")
+                    b.Property<Guid?>("BirthEventId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("DeathEventId")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("GenderId")
@@ -180,7 +191,13 @@ namespace Data.Migrations
                     b.Property<string>("GivenName")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Surname")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("VersionDate")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -191,7 +208,9 @@ namespace Data.Migrations
 
                     b.HasIndex("GenderId");
 
-                    b.ToTable("People");
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("PersonVersions");
                 });
 
             modelBuilder.Entity("Data.Entities.Event", b =>
@@ -203,23 +222,25 @@ namespace Data.Migrations
                     b.Navigation("Location");
                 });
 
-            modelBuilder.Entity("Data.Entities.Person", b =>
+            modelBuilder.Entity("Data.Entities.PersonVersion", b =>
                 {
                     b.HasOne("Data.Entities.Event", "BirthEvent")
                         .WithMany()
-                        .HasForeignKey("BirthEventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("BirthEventId");
 
                     b.HasOne("Data.Entities.Event", "DeathEvent")
                         .WithMany()
-                        .HasForeignKey("DeathEventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DeathEventId");
 
                     b.HasOne("Data.Entities.Gender", "Gender")
                         .WithMany()
                         .HasForeignKey("GenderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Entities.Person", "Person")
+                        .WithMany("Versions")
+                        .HasForeignKey("PersonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -228,6 +249,13 @@ namespace Data.Migrations
                     b.Navigation("DeathEvent");
 
                     b.Navigation("Gender");
+
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("Data.Entities.Person", b =>
+                {
+                    b.Navigation("Versions");
                 });
 #pragma warning restore 612, 618
         }

@@ -18,12 +18,12 @@ public class PersonQueryHandler
 
     public PersonQueryHandler(
         IPersonRepository personRepository,
-        IMapper mapper,
-        ILogger<PersonQueryHandler> logger)
+        ILogger<PersonQueryHandler> logger,
+        IMapper mapper)
     {
         _personRepository = personRepository;
-        _mapper = mapper;
         _logger = logger;
+        _mapper = mapper;
     }
 
     /// <summary>
@@ -33,13 +33,26 @@ public class PersonQueryHandler
     /// <returns>
     /// The person with the specified ID, or null if not found.
     /// </returns>
-    public async Task<Person?> Handle(GetPersonByIdQuery query)
+    public async Task<PersonVersion?> Handle(GetPersonByIdQuery query)
     {
         LogHandlerEntry(nameof(GetPersonByIdQuery));
 
         return await _personRepository.GetById(query.Id);
     }
 
+    /// <summary>
+    /// Handles a query to retrieve a person by their unique identifier (ID) asynchronously.
+    /// </summary>
+    /// <param name="query">The query specifying the person's ID.</param>
+    /// <returns>
+    /// The person with the specified ID, or null if not found.
+    /// </returns>
+    public async Task<Person?> Handle(GetPersonHistoryByIdQuery query)
+    {
+        LogHandlerEntry(nameof(GetPersonHistoryByIdQuery));
+
+        return await _personRepository.GetHistoryById(query.Id);
+    }
 
     /// <summary>
     /// Handles a query to retrieve a list of all persons asynchronously.
@@ -48,7 +61,7 @@ public class PersonQueryHandler
     /// <returns>
     /// A list of all persons in the database, or null if none are found.
     /// </returns>
-    public async Task<List<Person>?> Handle(GetAllPeopleQuery query)
+    public async Task<List<PersonVersion?>> Handle(GetAllPeopleQuery query)
     {
         LogHandlerEntry(nameof(GetAllPeopleQuery));
 

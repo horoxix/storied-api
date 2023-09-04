@@ -7,12 +7,23 @@ namespace API.Configuration;
 
 public static class DataConfig
 {
-    public static IServiceCollection ConfigureSqlLite(this IServiceCollection services)
+    public static IServiceCollection ConfigureDatabase(this IServiceCollection services, IWebHostEnvironment environment)
     {
-        return services.AddDbContext<StoriedDbContext>((serviceProvider, options) =>
+        if (environment.IsEnvironment("Integration"))
         {
-            var appSettings = serviceProvider.GetService<IOptions<AppSettings>>().Value;
-            options.UseSqlite(appSettings.DbConnectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(30));
-        });
+            services.AddDbContext<StoriedDbContext>(options =>
+            {
+                options.UseInMemoryDatabase("test-storied");
+            });
+        }
+        else
+        {
+            services.AddDbContext<StoriedDbContext>((serviceProvider, options) =>
+            {
+                var appSettings = serviceProvider.GetService<IOptions<AppSettings>>().Value;
+                options.UseSqlite(appSettings.DbConnectionString, sqlServerOptions => sqlServerOptions.CommandTimeout(30));
+            });
+        }
+        return services;
     }
 }

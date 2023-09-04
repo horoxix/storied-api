@@ -56,17 +56,17 @@ namespace Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a2b38516-7b1d-4d1b-9ec5-8aabbd18233f"),
+                            Id = new Guid("9dcf30df-ad5b-4a61-8442-fef9b90f2ffa"),
                             Name = "Birth"
                         },
                         new
                         {
-                            Id = new Guid("60d2da2b-0e59-44ff-a401-6fe440404ab4"),
+                            Id = new Guid("4549711d-1cf7-4bb0-ae78-aca5bf2852c6"),
                             Name = "Death"
                         },
                         new
                         {
-                            Id = new Guid("e75cfd1a-59f3-461b-9a02-718146571a36"),
+                            Id = new Guid("a8186a06-38a7-4de5-aa2f-80688ccf61fd"),
                             Name = "Marriage"
                         });
                 });
@@ -88,27 +88,27 @@ namespace Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("56c6c2b9-e619-435e-b899-2d19d03c6def"),
+                            Id = new Guid("40e513a1-1fbb-41c8-9c9b-8d6bb6d9531a"),
                             Name = "Male"
                         },
                         new
                         {
-                            Id = new Guid("0f48d9a9-85ee-42ba-b251-044c1f29ebaa"),
+                            Id = new Guid("b6b9bb29-7a78-42a4-8d3a-2e3e36f29ceb"),
                             Name = "Female"
                         },
                         new
                         {
-                            Id = new Guid("2e73a543-fad7-4703-a838-dda0a79fb5bd"),
+                            Id = new Guid("872534e8-80c0-421f-b84f-834a0c29bb42"),
                             Name = "Non-binary"
                         },
                         new
                         {
-                            Id = new Guid("cf0a5f5d-2cb6-4741-a15b-ad898aafc9c9"),
+                            Id = new Guid("0ab267f7-28dc-47ad-8c16-62f4fd46a210"),
                             Name = "Transgender"
                         },
                         new
                         {
-                            Id = new Guid("586c5311-adf7-4d98-bdae-b1cbd3beee50"),
+                            Id = new Guid("ecde8447-59fa-478f-b870-13a329ecf032"),
                             Name = "Other"
                         });
                 });
@@ -130,37 +130,48 @@ namespace Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("4aca1a49-5a43-4e7a-993a-239e5c5c91c3"),
+                            Id = new Guid("500c6a87-40c7-4041-85ae-c2334b801391"),
                             Name = "Orem"
                         },
                         new
                         {
-                            Id = new Guid("6023f999-51db-4ab2-8c2d-724564591ef2"),
+                            Id = new Guid("7f073329-04b4-4c27-b925-b2c81ef244ef"),
                             Name = "Provo"
                         },
                         new
                         {
-                            Id = new Guid("b59145bb-1ad0-48c8-92bd-5805e195bb57"),
+                            Id = new Guid("d56b6370-7058-4f19-bcd4-729471953f89"),
                             Name = "New York"
                         },
                         new
                         {
-                            Id = new Guid("ae8a5fb0-8ffa-4a50-a43e-f36659801ae4"),
+                            Id = new Guid("0613ca2c-692a-41a4-bcc9-95cc271ed295"),
                             Name = "San Francisco"
                         },
                         new
                         {
-                            Id = new Guid("cf6c3a0e-cbe8-480e-923a-3a7b8944562e"),
+                            Id = new Guid("bc9f8025-6cbc-48e4-a75e-cec46efd1a33"),
                             Name = "London"
                         },
                         new
                         {
-                            Id = new Guid("05bbc52c-0067-4d2c-849b-0ee40c192823"),
+                            Id = new Guid("89f082c5-2092-4e3c-839e-04d5024a6db4"),
                             Name = "Tokyo"
                         });
                 });
 
             modelBuilder.Entity("Data.Entities.Person", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("People");
+                });
+
+            modelBuilder.Entity("Data.Entities.PersonVersion", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -178,7 +189,13 @@ namespace Data.Migrations
                     b.Property<string>("GivenName")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("PersonId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Surname")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("VersionDate")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -189,7 +206,9 @@ namespace Data.Migrations
 
                     b.HasIndex("GenderId");
 
-                    b.ToTable("People");
+                    b.HasIndex("PersonId");
+
+                    b.ToTable("PersonVersions");
                 });
 
             modelBuilder.Entity("Data.Entities.Event", b =>
@@ -201,7 +220,7 @@ namespace Data.Migrations
                     b.Navigation("Location");
                 });
 
-            modelBuilder.Entity("Data.Entities.Person", b =>
+            modelBuilder.Entity("Data.Entities.PersonVersion", b =>
                 {
                     b.HasOne("Data.Entities.Event", "BirthEvent")
                         .WithMany()
@@ -217,11 +236,24 @@ namespace Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Data.Entities.Person", "Person")
+                        .WithMany("Versions")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("BirthEvent");
 
                     b.Navigation("DeathEvent");
 
                     b.Navigation("Gender");
+
+                    b.Navigation("Person");
+                });
+
+            modelBuilder.Entity("Data.Entities.Person", b =>
+                {
+                    b.Navigation("Versions");
                 });
 #pragma warning restore 612, 618
         }

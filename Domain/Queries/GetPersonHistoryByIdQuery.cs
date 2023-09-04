@@ -1,6 +1,6 @@
 ﻿namespace Domain.Queries;
 
-public class GetPersonByIdQuery
+public class GetPersonHistoryByIdQuery
 {
     public Guid Id { get; set; }
 }
