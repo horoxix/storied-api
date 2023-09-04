@@ -1,0 +1,177 @@
+{
+	"info": {
+		"_postman_id": "5540d736-e4ae-48bb-aec4-da5fb0bedee4",
+		"name": "Storied",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19020945"
+	},
+	"item": [
+		{
+			"name": "AddPerson",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"givenName\": \"Leo\",\r\n  \"surname\": \"Johnson\",\r\n  \"genderId\": \"40E513A1-1FBB-41C8-9C9B-8D6BB6D9531A\",\r\n  \"birthEvent\": {\r\n    \"eventTypeId\": \"9DCF30DF-AD5B-4A61-8442-FEF9B90F2FFA\",\r\n    \"eventDate\": \"2016-04-27T21:55:45.140Z\",\r\n    \"locationId\": \"7F073329-04B4-4C27-B925-B2C81EF244EF\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5013/api/v1/people",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5013",
+					"path": [
+						"api",
+						"v1",
+						"people"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdatePerson",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": \"9d78655a-41be-45e2-8e88-8af2de1dc3e6\",\r\n  \"givenName\": \"Leo\",\r\n  \"surname\": \"Johnson\",\r\n  \"genderId\": \"40E513A1-1FBB-41C8-9C9B-8D6BB6D9531A\",\r\n  \"birthEvent\": {\r\n    \"eventTypeId\": \"9DCF30DF-AD5B-4A61-8442-FEF9B90F2FFA\",\r\n    \"eventDate\": \"2016-04-27T21:55:45.140Z\",\r\n    \"locationId\": \"500C6A87-40C7-4041-85AE-C2334B801391\"\r\n  },\r\n    \"deathEvent\": {\r\n    \"eventTypeId\": \"9DCF30DF-AD5B-4A61-8442-FEF9B90F2FFA\",\r\n    \"eventDate\": \"2093-04-27T21:55:45.140Z\",\r\n    \"locationId\": \"D56B6370-7058-4F19-BCD4-729471953F89\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5013/api/v1/people",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5013",
+					"path": [
+						"api",
+						"v1",
+						"people"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "RecordBirth",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"id\": \"36D26990-108F-4120-BF65-D902F9685FD9\",\r\n  \"birthEvent\": {\r\n    \"eventTypeId\": \"A2B38516-7B1D-4D1B-9EC5-8AABBD18233F\",\r\n    \"eventDate\": \"1990-02-01T22:14:05.880Z\",\r\n    \"locationId\": \"6023F999-51DB-4AB2-8C2D-724564591EF2\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5013/api/v1/person/recordbirth",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5013",
+					"path": [
+						"api",
+						"v1",
+						"person",
+						"recordbirth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAll",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"birthLocationId\": \"7F073329-04B4-4C27-B925-B2C81EF244EF\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5013/api/v1/people/all",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5013",
+					"path": [
+						"api",
+						"v1",
+						"people",
+						"all"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5013/api/v1/people/62E4CCD9-5239-4F6B-B758-3B4A50C25851",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5013",
+					"path": [
+						"api",
+						"v1",
+						"people",
+						"62E4CCD9-5239-4F6B-B758-3B4A50C25851"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetHistoryById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5013/api/v1/people/62E4CCD9-5239-4F6B-B758-3B4A50C25851/history",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5013",
+					"path": [
+						"api",
+						"v1",
+						"people",
+						"62E4CCD9-5239-4F6B-B758-3B4A50C25851",
+						"history"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
