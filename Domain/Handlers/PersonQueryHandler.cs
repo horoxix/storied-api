@@ -41,11 +41,11 @@ public class PersonQueryHandler
     }
 
     /// <summary>
-    /// Handles a query to retrieve a person by their unique identifier (ID) asynchronously.
+    /// Handles a query to retrieve a person, with all of their version history, by their unique identifier (ID) asynchronously.
     /// </summary>
     /// <param name="query">The query specifying the person's ID.</param>
     /// <returns>
-    /// The person with the specified ID, or null if not found.
+    /// The person with the specified ID, and history, or null if not found.
     /// </returns>
     public async Task<Person?> Handle(GetPersonHistoryByIdQuery query)
     {

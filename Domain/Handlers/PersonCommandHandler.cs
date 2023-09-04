@@ -37,9 +37,9 @@ public class PersonCommandHandler
     }
 
     /// <summary>
-    /// Handles a command to add a new person asynchronously.
+    /// Handles a command to update an existing person asynchronously.
     /// </summary>
-    /// <param name="command">The command specifying the person to add.</param>
+    /// <param name="command">The command specifying the person to update with properties to update.</param>
     public async Task<PersonVersion> Handle(UpdatePersonCommand command)
     {
         LogHandlerEntry(nameof(UpdatePersonCommand));

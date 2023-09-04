@@ -63,7 +63,7 @@ public class PersonController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves a person's information by their unique identifier (ID).
+    /// Retrieves a person's information, with all associated version history, by their unique identifier (ID).
     /// </summary>
     /// <param name="id">The ID of the person to retrieve.</param>
     /// <returns>Returns the person's information if found; otherwise, returns a "Person not found" message.</returns>
@@ -127,7 +127,7 @@ public class PersonController : ControllerBase
     /// Adds a new person to the system.
     /// </summary>
     /// <param name="command">The command to add a person.</param>
-    /// <returns>Returns an "Person added successfully" message upon successful addition.</returns>
+    /// <returns>Returns the newly added Person</returns>
     /// <remarks>Returns a "Bad Request" response with an error message if an exception occurs during processing.</remarks>
     [HttpPost]
     public async Task<IActionResult> AddPerson([FromBody] AddPersonCommand command)
@@ -155,6 +155,12 @@ public class PersonController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Updates an existing person in the system.
+    /// </summary>
+    /// <param name="command">The command to update a person.</param>
+    /// <returns>Returns the successfully updated Person.</returns>
+    /// <remarks>Returns a "Bad Request" response with an error message if an exception occurs during processing.</remarks>
     [HttpPut]
     public async Task<IActionResult> UpdatePerson([FromBody] UpdatePersonCommand command)
     {
@@ -186,7 +192,7 @@ public class PersonController : ControllerBase
     /// If the person doesn't exist, it will create the person.
     /// </summary>
     /// <param name="command">The command to record a birth event.</param>
-    /// <returns>Returns a "Birth recorded successfully" message upon successful recording.</returns>
+    /// <returns>Returns the Person with a succesful, new Birth Record</returns>
     /// <remarks>Returns a "Bad Request" response with an error message if an exception occurs during processing.</remarks>
     [HttpPost]
     [Route("recordBirth")]
@@ -215,12 +221,21 @@ public class PersonController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Logs the entry of an endpoint.
+    /// </summary>
+    /// <param name="endpointName">The name of the endpoint being entered.</param>
     private void LogEndpointEntry(string endpointName)
     {
         _logger.LogInformation("Entering {endpointName} Endpoint.",
             endpointName);
     }
 
+    /// <summary>
+    /// Logs a caught exception.
+    /// </summary>
+    /// <param name="endpointName">The name of the endpoint excepting.</param>
+    /// <param name="ex">The Exception object.</param>
     private void LogException(string endpointName, Exception ex)
     {
         _logger.LogInformation("Caught {ex.Type} : {ex.Message} in {endpointName}.",
